@@ -28,6 +28,6 @@ jobs:
       run: dotnet pack "DBManager/DBManager.csproj" -c Release -o out -p:PackageVersion=1.0.${{ github.run_number }}
     - name: Push generated package to GitHub registry
       if: github.event_name != 'pull_request'
-      run: dotnet nuget push ./out/*.nupkg --source "https://nuget.pkg.github.com/f4n0/index.json" --api-key ${{ GITHUB_TOKEN }} 
+      run: dotnet nuget push ./out/*.nupkg --source "https://nuget.pkg.github.com/f4n0/index.json" --api-key ${GITHUB_TOKEN} 
       env:
         GITHUB_TOKEN: ${{secrets.TOKEN}}  
