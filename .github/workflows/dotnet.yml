@@ -17,8 +17,6 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 7.0.x
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}  
     - name: Restore dependencies
       run: dotnet restore DBManager/DBManager.csproj
     - name: Build
@@ -30,4 +28,5 @@ jobs:
       if: github.event_name != 'pull_request'
       run: dotnet nuget push ./out/*.nupkg --source "https://nuget.pkg.github.com/f4n0/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
       env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}  
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}  
