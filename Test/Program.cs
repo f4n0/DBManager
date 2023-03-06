@@ -16,8 +16,15 @@ DBManager.DBManager.Instance.UseSQLite("C:\\_myTmp\\db.sqlite");
 
 //var parent = RecordFactory.CreateModel<Parent>();
 //parent.TestString = "test";
-//parent.TestInt= 1;
-//parent.TestDateTime= DateTime.Now;
+//parent.TestInt = 1;
+//parent.TestDateTime = DateTime.Now;
+//parent.TestEnum = myEnum.Second;
+//parent.Store();
+
+//parent = RecordFactory.CreateModel<Parent>();
+//parent.TestString = "Test2";
+//parent.TestInt = 2;
+//parent.TestDateTime = DateTime.Now;
 //parent.TestEnum = myEnum.Second;
 //parent.Store();
 
@@ -28,6 +35,9 @@ DBManager.DBManager.Instance.UseSQLite("C:\\_myTmp\\db.sqlite");
 
 
 var read = RecordFactory.Open<Parent>().Read();
+
+
+read = RecordFactory.Open<Parent>().SetRange(parent => parent.TestString == "Test2").Read();
 
 
 

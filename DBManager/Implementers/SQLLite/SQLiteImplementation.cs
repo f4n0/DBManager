@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,11 +22,15 @@ namespace DBManager.Implementers.SQLLite
       }
     }
 
-    public IEnumerable<T> List<T>() where T : class
+    public IEnumerable<T> List<T>(List<Expression<Func<T, bool>>> Filters = null) where T : class
     {
-
+      
       var test = new TableQuery<T>(database);
-      return (IEnumerable<T>)test.AsEnumerable();
+      foreach (var filter in Filters)
+      {
+        test = test.Where(filter);
+      }
+     return test.AsEnumerable();
     }
 
     public void Save()

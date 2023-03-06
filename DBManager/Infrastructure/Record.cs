@@ -13,7 +13,7 @@ namespace DBManager.Infrastructure
 
     private Dictionary<string, PropertyInfo> Properties { get; }
 
-    private List<Predicate<T>> Filters { get; }
+    private List<Expression<Func<T,bool>>> Filters { get; }
 
 
     /// <summary>
@@ -21,7 +21,7 @@ namespace DBManager.Infrastructure
     public Record()
     {
       Properties = new Dictionary<string, PropertyInfo>();
-      Filters = new List<Predicate<T>>();
+      Filters = new();
     }
 
     private static string GetMemberName(Expression<Func<T, object>> exp)
@@ -35,13 +35,7 @@ namespace DBManager.Infrastructure
       return memberName;
     }
 
-    private IEnumerable<T> FilterEntities(IEnumerable<T> items)
-    {
-      return items.Where(item =>
-      {
-        return Filters.All(predicate => predicate(item));
-      });
-    }
+
 
     /// <summary>
     /// Clears all filters from this instance.
@@ -58,127 +52,13 @@ namespace DBManager.Infrastructure
     /// </summary>
     /// <param name="expression">The filter expression.</param>
     /// <returns>The instance itself.</returns>
-    public Record<T> SetRange(Predicate<T> expression)
+    public Record<T> SetRange(Expression<Func<T, bool>> expression)
     {
       Filters.Add(expression);
       return this;
     }
 
-    /// <summary>
-    /// Adds the specified expression as a filter to the current instance.
-    /// </summary>
-    /// <param name="name">An expression used to find the field name.</param>
-    /// <param name="expression">The filter expression.</param>
-    /// <returns>The instance itself.</returns>
-    public Record<T> SetRange<TValue>(Expression<Func<T, object>> name, Func<TValue, bool> expression)
-    {
-      return SetRange(GetMemberName(name), expression);
-    }
-
-    /// <summary>
-    /// Adds the specified expression as a filter to the current instance.
-    /// </summary>
-    /// <param name="name">The field name.</param>
-    /// <param name="expression">The filter expression.</param>
-    /// <returns>The instance itself.</returns>
-    public Record<T> SetRange<TValue>(string name, Func<TValue, bool> expression)
-    {
-      SetRange(obj =>
-      {
-        var propValue = GetPropertyValue<TValue>(obj, name);
-        return expression(propValue);
-      });
-      return this;
-    }
-
-    /// <summary>
-    /// Adds a case-sensitive string filter to the current instance.
-    /// </summary>
-    /// <param name="name">An expression used to find the field name.</param>
-    /// <param name="value">The filter value.</param>
-    /// <returns>The instance itself.</returns>
-    public Record<T> SetRangeCs(Expression<Func<T, object>> name, string value)
-    {
-      return SetRangeCs(GetMemberName(name), value);
-    }
-
-    /// <summary>
-    /// Adds a case-sensitive string filter to the current instance.
-    /// </summary>
-    /// <param name="name">The field name.</param>
-    /// <param name="value">The filter value.</param>
-    /// <returns>The instance itself.</returns>
-    public Record<T> SetRangeCs(string name, string value)
-    {
-      SetRange(obj =>
-      {
-        var propValue = GetPropertyValue<string>(obj, name);
-        return CompareValues(propValue, value);
-      });
-      return this;
-    }
-
-    /// <summary>
-    /// Adds a case-insensitive string filter to the current instance.
-    /// </summary>
-    /// <param name="name">An expression used to find the field name.</param>
-    /// <param name="value">The filter value.</param>
-    /// <returns>The instance itself.</returns>
-    public Record<T> SetRangeCi(Expression<Func<T, object>> name, string value)
-    {
-      return SetRangeCi(GetMemberName(name), value);
-    }
-
-    /// <summary>
-    /// Adds a case-insensitive string filter to the current instance.
-    /// </summary>
-    /// <param name="name">The field name.</param>
-    /// <param name="value">The filter value.</param>
-    /// <returns>The instance itself.</returns>
-    public Record<T> SetRangeCi(string name, string value)
-    {
-      SetRange(obj =>
-      {
-        var propValue = GetPropertyValue<string>(obj, name);
-        return CompareValues(propValue?.ToLowerInvariant(), value?.ToLowerInvariant());
-      });
-      return this;
-    }
-
-
-    private static bool CompareValues(object objValue, object value)
-    {
-      if (objValue == null && value == null) return true;
-      if (objValue == null || value == null) return false;
-      return objValue.Equals(value);
-    }
-
-    private TValue GetPropertyValue<TValue>(T item, string name)
-    {
-      try
-      {
-        var prop = GetProperty(name);
-        return (TValue)prop.GetValue(item);
-      }
-      catch (InvalidCastException ex)
-      {
-        throw new InvalidOperationException($"The property '{name}' on type '{typeof(T)}' cannot be cast to '{typeof(TValue)}'.", ex);
-      }
-    }
-
-    private PropertyInfo GetProperty(string name)
-    {
-      if (!Properties.ContainsKey(name))
-      {
-        var prop = typeof(T).GetProperty(name);
-        if (prop == null)
-          throw new InvalidOperationException($"The property '{name}' was not found on object of type '{typeof(T)}'");
-        Properties.Add(name, prop);
-      }
-
-      return Properties[name];
-    }
-
+     
     private static void AssertIdSet(IEnumerable<object> items)
     {
       var invalidItem = items.FirstOrDefault(item => String.IsNullOrEmpty((item as IStorageItem)?.Id));
@@ -226,9 +106,7 @@ namespace DBManager.Infrastructure
     /// <returns></returns>
     public T[] Read()
     {
-      return FilterEntities(
-        DBManager.Instance.Storage
-        .List<T>()).ToArray();
+       return DBManager.Instance.Storage.List<T>(Filters).ToArray();
     }
 
     /// <summary>

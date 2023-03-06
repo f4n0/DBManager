@@ -15,7 +15,7 @@ namespace Test.Models
     public DateTime TestDateTime { get; set; }
     public myEnum TestEnum { get; set; }
 
-    public List<Child> TestChild => RecordFactory.Open<Child>().SetRangeCs(o=> o.ParentId, Id).Read().ToList();
+    public List<Child> TestChild => RecordFactory.Open<Child>().SetRange(o=> o.ParentId == Id).Read().ToList();
 
 
     public Parent(string id) : base(id)

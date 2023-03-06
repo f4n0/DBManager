@@ -4,6 +4,7 @@ using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,11 +23,16 @@ namespace DBManager.Implementers.LiteDb
       }
     }
 
-    public IEnumerable<T> List<T>() where T : class
+    public IEnumerable<T> List<T>(List<Expression<Func<T, bool>>> Filters = null) where T : class
     {
       var coll = Database.GetCollection<T>(typeof(T).Name);
       var q = coll.Query();
-      var res =  q.ToArray();
+      foreach (var filter in Filters)
+      {
+        q = q.Where(filter);
+      }
+
+      var res = q.ToArray();
 
       return res;
     }
