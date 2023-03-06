@@ -4,6 +4,10 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>DB Manager</Title>
+    <Authors>f4n0</Authors>
+    <PackageProjectUrl>https://github.com/f4n0/DBManager</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/f4n0/DBManager</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
