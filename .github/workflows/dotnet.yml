@@ -30,4 +30,4 @@ jobs:
       if: github.event_name != 'pull_request'
       run: dotnet nuget push ./out/*.nupkg --source "https://nuget.pkg.github.com/f4n0/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
       env:
-        GITHUB_TOKEN: ${{secrets.TOKEN}}  
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}  
